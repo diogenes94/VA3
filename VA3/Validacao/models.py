@@ -78,6 +78,10 @@ class Local(models.Model):
 	def __unicode__ (self):
 		return self.Nome
 
+	class Meta:
+		verbose_name = "Local"
+		verbose_name_plural = "Locais"
+
 class Advertencia(models.Model):
 	Pessoa = models.ForeignKey(Pessoa,verbose_name='Pessoa')
 	Local = models.ForeignKey(Local,verbose_name='Loval')
