@@ -41,20 +41,17 @@ ESTADO_OPCOES = [
  ('TO','Tocantins - TO')
 ]
 
-
-
-class NivelAcesso(models.Model):
-	Nivel = models.CharField('Nivel de Acesso:',max_length = 30, null=True)
-	Peso = models.IntegerField('Peso',null=True)
-	
-	def __unicode__ (self):
-		return self.Nivel
+NIVEL_OPCOES = [
+(1,'Livre'),
+(2,'Restrito'),
+(3,'Reservado')
+]
 
 
 class Pessoa(models.Model):
 	
 	Nome = models.CharField('Nome',max_length=100,null=True)
-	NivelAcesso = models.ForeignKey(NivelAcesso,verbose_name="Nivel de Acesso do Usuario",null=True)
+	NivelAcesso = models.IntegerField('Nivel de Acesso',choices=NIVEL_OPCOES,null=True)
 	Sexo = models.CharField('Sexo',max_length=1,choices=SEXO_OPCOES,null=True)
 	CPF = models.CharField('CPF',max_length=14,unique=True,null=True)
 	DataNascimento = models.DateField('Data de Nascimento',null=True)
@@ -76,10 +73,10 @@ class Pessoa(models.Model):
 
 class Local(models.Model):
 	Nome = models.CharField('Nome do Local:',max_length = 100,null=True)
-	NivelAcesso = models.ForeignKey(NivelAcesso, verbose_name = 'Nivel de Acesso') 
+	NivelAcesso = models.IntegerField('Nivel de Acesso', choices=NIVEL_OPCOES,null=True) 
 	
 	def __unicode__ (self):
-		return "%s - %s" % (self.Nome,self.NivelAcesso)
+		return self.Nome
 
 class Advertencia(models.Model):
 	Pessoa = models.ForeignKey(Pessoa,verbose_name='Pessoa')
@@ -89,33 +86,38 @@ class Advertencia(models.Model):
 
 	def __unicode__ (self):
 		return "%s - %s - %s" 
+	class Meta:
+		verbose_name = "Ocorrência"
+		verbose_name_plural = "Ocorrências"
 
 class Acessar(models.Model):
 	Local = models.ForeignKey(Local, verbose_name='Local de Acesso')
 	Pessoa = models.ForeignKey(Pessoa, verbose_name = 'Pessoa')
 	HoraChegada = models.DateTimeField('Hora de Chegada',auto_now=True,null=True)
 	HoraSaida = models.DateTimeField('Hora de Saída',blank=True,null=True)
-	#status = models.BooleanField('Saiu',default=False)
 
+	def __unicode__(self):
+		return "%s - %s"%(self.Pessoa,self.Local)
 	
 	def clean(self):
 
 		o = Acessar.objects.filter(Pessoa=self.Pessoa,HoraSaida__isnull=True)
-		#p = Acessar.objects.filter(Local = self.Local)
-		#q = Acessar.objects.filter(id = self.id)
 		if o and self.id == None:
-			raise ValidationError("Esta Pessoa Já está em outro local")	
+			raise ValidationError("Este Usuário Já está em outro local")
 		#self.HoraSaida = datetime.datetime.now()
 
-		if self.Local.NivelAcesso.Peso > self.Pessoa.NivelAcesso.Peso :
+		if self.Local.NivelAcesso > self.Pessoa.NivelAcesso :
 			a = Advertencia()
 			a.Pessoa = self.Pessoa
 			print "Testa"
 			a.Local = self.Local
 			a.Causa = "Tentativa de acesso em área não permitida"
 			a.save()
-			raise ValidationError("Este Usuário não possui permissão! Gerando Advertência !")
+			raise ValidationError("Este Usuário não possui permissão! Gerando Ocorrência!")
 
+	class Meta:
+		verbose_name = "Acesso"
+		verbose_name_plural = "Acessos"
 
 
 	

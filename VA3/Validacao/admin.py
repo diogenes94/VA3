@@ -1,12 +1,6 @@
 from django.contrib import admin
-from models import NivelAcesso,Pessoa,Local,Acessar, Advertencia
+from models import Pessoa,Local,Acessar, Advertencia
 
-class NivelAcessoAdmin(admin.ModelAdmin):
-	
-	list_display = ['Nivel']
-	list_filter = ['Nivel']
-	search_fields = ['Nivel']
-	save_as = True
 
 
 class PessoaAdmin(admin.ModelAdmin):
@@ -37,7 +31,6 @@ class AdvertenciaAdmin(admin.ModelAdmin):
 	save_as = True
 
 # Register your models here.
-admin.site.register(NivelAcesso,NivelAcessoAdmin)
 admin.site.register(Pessoa,PessoaAdmin)
 admin.site.register(Local,LocalAdmin)
 admin.site.register(Acessar,AcessarAdmin)
