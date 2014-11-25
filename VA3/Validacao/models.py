@@ -1,6 +1,7 @@
 #coding:utf-8
 from django.db import models
 from django.core.exceptions import ValidationError
+import datetime
 
 
 SEXO_OPCOES = [
@@ -80,30 +81,44 @@ class Local(models.Model):
 	def __unicode__ (self):
 		return "%s - %s" % (self.Nome,self.NivelAcesso)
 
+class Advertencia(models.Model):
+	Pessoa = models.ForeignKey(Pessoa,verbose_name='Pessoa')
+	Local = models.ForeignKey(Local,verbose_name='Loval')
+	Acesso = models.DateTimeField(auto_now=True,null=True)
+	Causa = models.CharField('Causa',max_length=30,null=True)
+
+	def __unicode__ (self):
+		return "%s - %s - %s" 
 
 class Acessar(models.Model):
 	Local = models.ForeignKey(Local, verbose_name='Local de Acesso')
 	Pessoa = models.ForeignKey(Pessoa, verbose_name = 'Pessoa')
-	HoraChegada = models.DateTimeField('Hora de Chegada')
+	HoraChegada = models.DateTimeField('Hora de Chegada',auto_now=True,null=True)
 	HoraSaida = models.DateTimeField('Hora de Saída',blank=True,null=True)
-	status = models.BooleanField('Situação',default=False)
+	#status = models.BooleanField('Saiu',default=False)
 
 	
 	def clean(self):
-		q = Acessar.objects.filter(Pessoa=self.Pessoa, HoraSaida__isnull=True)
-		print "TEM121321231231231231321321"
-		if q:
-				
-			raise ValidationError("Esta Pessoa Já está em outro local")
 
-		#print "TEM15614654564564"
-		#	q = q.get()
-		
-		#	if q.Local.NivelAcesso.Peso > q.Pessoa.NivelAcesso.Peso :
-		#		print ""
+		o = Acessar.objects.filter(Pessoa=self.Pessoa,HoraSaida__isnull=True)
+		#p = Acessar.objects.filter(Local = self.Local)
+		#q = Acessar.objects.filter(id = self.id)
+		if o and self.id == None:
+			raise ValidationError("Esta Pessoa Já está em outro local")	
+		#self.HoraSaida = datetime.datetime.now()
+
+		if self.Local.NivelAcesso.Peso > self.Pessoa.NivelAcesso.Peso :
+			a = Advertencia()
+			a.Pessoa = self.Pessoa
+			print "Testa"
+			a.Local = self.Local
+			a.Causa = "Tentativa de acesso em área não permitida"
+			a.save()
+			raise ValidationError("Este Usuário não possui permissão! Gerando Advertência !")
+
+
+
 	
-	class Meta:
-		unique_together = ("Local","Pessoa")
 
 
 

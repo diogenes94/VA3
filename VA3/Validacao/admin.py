@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import NivelAcesso,Pessoa,Local,Acessar
+from models import NivelAcesso,Pessoa,Local,Acessar, Advertencia
 
 class NivelAcessoAdmin(admin.ModelAdmin):
 	
@@ -7,7 +7,6 @@ class NivelAcessoAdmin(admin.ModelAdmin):
 	list_filter = ['Nivel']
 	search_fields = ['Nivel']
 	save_as = True
-
 
 
 class PessoaAdmin(admin.ModelAdmin):
@@ -26,14 +25,20 @@ class LocalAdmin(admin.ModelAdmin):
 
 class AcessarAdmin(admin.ModelAdmin):
 	
-	list_display = ['Local','Pessoa','HoraChegada','HoraSaida','status']
-	list_filter = ['Local','Pessoa','HoraChegada','HoraSaida','status']
+	list_display = ['Local','Pessoa','HoraChegada','HoraSaida']
+	list_filter = ['Local','Pessoa','HoraChegada','HoraSaida']
 	search_fields = ['Local','Pessoa']
 	save_as = True
+class AdvertenciaAdmin(admin.ModelAdmin):
 
+	list_display = ['Pessoa','Local','Acesso','Causa']
+	list_filter = ['Pessoa','Local']
+	search_fields = ['Pessoa','Local']
+	save_as = True
 
 # Register your models here.
 admin.site.register(NivelAcesso,NivelAcessoAdmin)
 admin.site.register(Pessoa,PessoaAdmin)
 admin.site.register(Local,LocalAdmin)
 admin.site.register(Acessar,AcessarAdmin)
+admin.site.register(Advertencia, AdvertenciaAdmin)
